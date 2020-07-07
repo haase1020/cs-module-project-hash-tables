@@ -21,8 +21,9 @@ class HashTable:
     Implement this.
     """
 
-    def __init__(self, capacity):
-        # Your code here
+    def __init__(self, capacity=MIN_CAPACITY):
+        self.capacity = capacity
+        self.storage = [None] * self.capacity
 
     def get_num_slots(self):
         """
@@ -34,7 +35,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -93,7 +94,10 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        try:
+            self.storage[self.hash_index(key)] = None
+        except KeyError:
+            return print('value not found in storage')
 
     def get(self, key):
         """
@@ -103,7 +107,10 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        try:
+            return self.storage[self.hash_index(key)]
+        except KeyError:
+            return None
 
     def resize(self, new_capacity):
         """
