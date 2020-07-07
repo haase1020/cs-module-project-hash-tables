@@ -45,7 +45,11 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        load_factor = self.storage / self.capacity
+        if load_factor > 0.7:
+            resize()
+
+        return load_factor
 
     def fnv1(self, key):
         """
@@ -151,7 +155,9 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        self.capacity = new_capacity
+
+        return self.new_capacity
 
 
 if __name__ == "__main__":
