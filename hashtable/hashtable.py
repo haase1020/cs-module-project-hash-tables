@@ -23,7 +23,9 @@ class HashTable:
 
     def __init__(self, capacity=MIN_CAPACITY):
         self.capacity = capacity
-        self.storage = [None] * self.capacity
+        # self.storage = [None] * self.capacity
+        self.storage = [[]
+                        for i in range(self.capacity)]  # for collision handling
 
     def get_num_slots(self):
         """
@@ -74,6 +76,9 @@ class HashTable:
         between within the storage capacity of the hash table.
         """
         # return self.fnv1(key) % self.capacity
+        hash = 0
+        for char in key:
+            hash += ord(char)
         return self.djb2(key) % self.capacity
 
     def put(self, key, value):
@@ -83,8 +88,11 @@ class HashTable:
         Hash collisions should be handled with Linked List Chaining.
 
         Implement this.
+
         """
-        self.storage[self.hash_index(key)] = value
+        h = self.hash_index(key)
+        self.storage[h] = value
+        # self.storage[self.hash_index(key)] = value
 
     def delete(self, key):
         """
@@ -94,8 +102,9 @@ class HashTable:
 
         Implement this.
         """
+        h = self.hash_index(key)
         try:
-            self.storage[self.hash_index(key)] = None
+            self.storage[h] = None
         except KeyError:
             return print('value not found in storage')
 
@@ -107,8 +116,9 @@ class HashTable:
 
         Implement this.
         """
+        h = self.hash_index(key)
         try:
-            return self.storage[self.hash_index(key)]
+            return self.storage[h]
         except KeyError:
             return None
 
