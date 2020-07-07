@@ -81,7 +81,7 @@ class HashTable:
             hash += ord(char)
         return self.djb2(key) % self.capacity
 
-    def put(self, key, value):
+    def put(self, key, value):  # this is also known as setitem
         """
         Store the value with the given key.
 
@@ -91,8 +91,18 @@ class HashTable:
 
         """
         h = self.hash_index(key)
-        self.storage[h] = value
-        # self.storage[self.hash_index(key)] = value
+        # the following code is for day 1 (no collision resolution)
+        # self.storage[h] = value
+
+        # the following code is for collision resolution
+        found = False
+        for index, element in enumerate(self.storage[h]):
+            if len(element) == 2 and element[0] == key:
+                self.storage[h][index] = (key, value)
+                found = True
+                break
+        if not found:
+            self.storage[h].append((key, value))
 
     def delete(self, key):
         """
@@ -102,13 +112,18 @@ class HashTable:
 
         Implement this.
         """
+        # the following code doesn't have collision resolution
+        # h = self.hash_index(key)
+        # try:
+        #     self.storage[h] = None
+        # except KeyError:
+        #     return print('value not found in storage')
         h = self.hash_index(key)
-        try:
-            self.storage[h] = None
-        except KeyError:
-            return print('value not found in storage')
+        for index, element in enumerate(self.storage[h]):
+            if element[0] == key:
+                del self.storage[h][index]
 
-    def get(self, key):
+    def get(self, key):  # also known as getitem
         """
         Retrieve the value stored with the given key.
 
@@ -116,11 +131,18 @@ class HashTable:
 
         Implement this.
         """
+        # the following code doesn't have collision resolution
+        # h = self.hash_index(key)
+        # try:
+        #     return self.storage[h]
+        # except KeyError:
+        #     return None
+
+        # the following code handles collision resolution
         h = self.hash_index(key)
-        try:
-            return self.storage[h]
-        except KeyError:
-            return None
+        for element in self.storage[h]:
+            if element[0] == key:
+                return element[1]
 
     def resize(self, new_capacity):
         """
