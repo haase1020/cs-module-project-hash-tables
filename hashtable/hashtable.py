@@ -22,10 +22,8 @@ class HashTable:
     """
 
     def __init__(self, capacity=MIN_CAPACITY):
-        self.capacity = capacity
-        # self.storage = [None] * self.capacity
-        self.storage = [[]
-                        for i in range(self.capacity)]  # for collision handling
+        self.capacity = capacity  # size
+        self.storage = [None] * capacity
 
     def get_num_slots(self):
         """
@@ -37,7 +35,7 @@ class HashTable:
 
         Implement this.
         """
-        return self.capacity
+        return len(self.storage)
 
     def get_load_factor(self):
         """
@@ -45,10 +43,15 @@ class HashTable:
 
         Implement this.
         """
-        load_factor = self.storage / self.capacity
+        load = 0
+        for x in self.storage:
+            if x != None:
+                load += 1
+        load_factor = load / self.capacity
         if load_factor > 0.7:
-            resize()
-
+            self.resize(int(2*self.capacity))
+        elif load_factor < 0.2:
+            self.resize(int(self.capacity/2))
         return load_factor
 
     def fnv1(self, key):
@@ -95,18 +98,24 @@ class HashTable:
 
         """
         h = self.hash_index(key)
-        # the following code is for day 1 (no collision resolution)
-        # self.storage[h] = value
+        current_value = self.storage[h]
+        if current_value == None:
+            self.storage[h] = HashTableEntry(key, value)
+        else:
+            new_entry = HashTableEntry(key, value)
+            new_entry.next = current_value
+            self.storage[h] = new_entry
+        self.get_load_factor()
 
-        # the following code is for collision resolution
-        found = False
-        for index, element in enumerate(self.storage[h]):
-            if len(element) == 2 and element[0] == key:
-                self.storage[h][index] = (key, value)
-                found = True
-                break
-        if not found:
-            self.storage[h].append((key, value))
+    def rehash_put(self, key, value):
+        h = self.hash_index(key)
+        current_value = self.storage[h]
+        if current_value == None:
+            self.storage[h] = HashTableEntry(key, value)
+        else:
+            new_entry = HashtableEntry(key, value)
+            new_entry.next = current_value
+            self.storage[h] = new_entry
 
     def delete(self, key):
         """
@@ -116,16 +125,18 @@ class HashTable:
 
         Implement this.
         """
-        # the following code doesn't have collision resolution
-        # h = self.hash_index(key)
-        # try:
-        #     self.storage[h] = None
-        # except KeyError:
-        #     return print('value not found in storage')
         h = self.hash_index(key)
-        for index, element in enumerate(self.storage[h]):
-            if element[0] == key:
-                del self.storage[h][index]
+        current_node = self.storage[h]
+        while current_node.next != None:
+            if current_node.key == key:
+                current_node.value = None
+                return
+            else:
+                current_node = current_node.next
+        if current_node.next == None:
+            if current_node.key == key:
+                current_node.value = None
+        self.get_load_factor()
 
     def get(self, key):  # also known as getitem
         """
@@ -135,18 +146,14 @@ class HashTable:
 
         Implement this.
         """
-        # the following code doesn't have collision resolution
-        # h = self.hash_index(key)
-        # try:
-        #     return self.storage[h]
-        # except KeyError:
-        #     return None
-
-        # the following code handles collision resolution
-        h = self.hash_index(key)
-        for element in self.storage[h]:
-            if element[0] == key:
-                return element[1]
+        current_node = None
+        for x in range(len(self.storage)):
+            current_node = self.storage[x]
+            while current_node != None:
+                if current_node.key == key:
+                    return current_node.value
+                else:
+                    current_node = current_node.next
 
     def resize(self, new_capacity):
         """
@@ -155,9 +162,23 @@ class HashTable:
 
         Implement this.
         """
+        pairs = {}
+        for x in range(len(self.storage)):
+            current_node = self.storage[x]
+            if current_node == None:
+                pass
+            else:
+                if current_node.next == None:
+                    pairs[current_node.key] = current_node.value
+                while current_node.next != None:
+                    pairs[current_node.key] = current_node.value
+                    current_node = current_node.next
         self.capacity = new_capacity
+        self.storage = [None] * \
+            (self.capacity if self.capacity > 8 else 8)
 
-        return self.new_capacity
+        for key in pairs:
+            self.rehash_put(key, pairs[key])
 
 
 if __name__ == "__main__":
