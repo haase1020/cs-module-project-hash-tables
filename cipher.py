@@ -32,6 +32,7 @@ encode_table = {"A": "M",
                 "X": "E",
                 "Y": "W",
                 "Z": "Q"}
+
 decode_table = {}
 ##decode_table = {v:k for k, v in encode_table.items()}
 
@@ -73,4 +74,8 @@ def encode(s):
     return encoded_string
 
 
-print(encode("Hail Caesar"))
+encoded = encode("today is a beautiful day and I am thankful to be here!")
+print(encoded)
+build_decode(encode_table)
+decoded = decode(encoded)
+print(decoded)
